@@ -30,7 +30,7 @@ resource "aws_ecs_cluster_capacity_providers" "main" {
 # Launch Template for ECS EC2 instances
 resource "aws_launch_template" "ecs" {
   name_prefix   = "denzopa-ecs-lt-"
-  image_id      = "ami-0e35ddab05955cf57
+  image_id      = "ami-0e35ddab05955cf57"
 " # Amazon ECS-Optimized AMI
   instance_type = "t3.medium"
 
