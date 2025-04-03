@@ -34,7 +34,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKER_IMAGE_TAG }} .
+          docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKER_IMAGE_TAG }}  -f ./node-app/Dockerfile ./node-app
 
       - name: Tag Docker image
         run: |
