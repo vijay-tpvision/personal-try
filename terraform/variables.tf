@@ -11,4 +11,9 @@ variable "certificate_arn" {
 variable "route53_zone_id" {
   description = "The ID of the Route 53 hosted zone"
   type        = string
-} 
+}
+
+variable "alb_certificate_arn" {
+  description = "The ARN of the ACM certificate for ALB - must be in mumbai region"
+  type        = string
+}
