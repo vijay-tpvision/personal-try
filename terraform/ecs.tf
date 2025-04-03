@@ -60,8 +60,8 @@ resource "aws_autoscaling_group" "ecs" {
   name                = "denzopa-ecs-asg"
   vpc_zone_identifier = [aws_subnet.private_1.id, aws_subnet.private_2.id, aws_subnet.private_3.id]
   desired_capacity    = 2
-  max_size           = 3
-  min_size           = 1
+  max_size            = 3
+  min_size            = 1
 
   launch_template {
     id      = aws_launch_template.ecs.id
@@ -70,25 +70,25 @@ resource "aws_autoscaling_group" "ecs" {
 
   tag {
     key                 = "AmazonECSManaged"
-    value              = true
+    value               = true
     propagate_at_launch = true
   }
 
   tag {
     key                 = "Name"
-    value              = "denzopa-ecs-instance"
+    value               = "denzopa-ecs-instance"
     propagate_at_launch = true
   }
 
   tag {
     key                 = "project"
-    value              = "denzopa"
+    value               = "denzopa"
     propagate_at_launch = true
   }
 
   tag {
     key                 = "environment"
-    value              = "denzopa-dev"
+    value               = "denzopa-dev"
     propagate_at_launch = true
   }
 }
@@ -96,10 +96,10 @@ resource "aws_autoscaling_group" "ecs" {
 # ECS Task Definition
 resource "aws_ecs_task_definition" "app" {
   family                   = "denzopa-app"
-  network_mode            = "awsvpc"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
-  cpu                     = 256
-  memory                  = 512
+  cpu                      = 256
+  memory                   = 512
 
   container_definitions = jsonencode([
     {
