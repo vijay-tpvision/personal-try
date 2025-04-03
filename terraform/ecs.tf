@@ -97,7 +97,7 @@ resource "aws_autoscaling_group" "ecs" {
 resource "aws_ecs_task_definition" "app" {
   family                   = "denzopa-app"
   network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
+  requires_compatibilities = ["EC2", "FARGATE"]
   cpu                      = 256
   memory                   = 512
 
