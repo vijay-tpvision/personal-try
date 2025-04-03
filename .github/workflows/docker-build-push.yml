@@ -41,4 +41,4 @@ jobs:
           push:  ${{ github.event_name == 'workflow_dispatch' }}
           platforms: linux/amd64
           file: ./node-app/Dockerfile
-          tags: ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}
+          tags: 521170656618.dkr.ecr.ap-south-1.amazonaws.com/forvaidya/personaltry
