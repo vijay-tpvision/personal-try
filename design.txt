@@ -1,0 +1,40 @@
+Cloud Provider: AWS
+Language: Terraform
+Region: Mumbai india
+Instance type: Medium
+Project Name Prefix - denzopa
+Please add tags everyewhere as project: denzopa and environment:denzopa-dev
+
+I will provide 
+SSL Certificate ARN 
+DNS ZONE ID
+Container image
+ECR is in the same AWS Account
+
+Setup up the provider AWS, use S3 as backend 
+Please assume suitable name for S3 bucket
+use dynamodb table denzopa for the lock
+
+Create a VPC with about 200 ips
+Equally devide it in 3 public and 3 private subnets 
+setup logging
+
+Create ECS cluster with EC2 capacity Provider
+Create Autoscaling group, launch configuration
+Don't create / use ssh keypair
+create an application load balancer
+I will provide SSL Certificate ARN and DNS ZONE ID
+Create Cloudfront distribution using this application load balancer
+create cname as beta.get-done.in  for Cloudfront and also in DNS after distribution is ready
+
+Create task definition with a essential container exposed on port 3000
+select reasonable resource values
+Health check is done using curl (provided within the image), localhost:3000
+Target group should on port 80
+
+Create service with replicas count between 1 and 3
+
+connect the service with load balancer
+
+Save the code in this $PWD
+
