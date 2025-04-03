@@ -1,0 +1,45 @@
+---
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Authenticate to AWS
+        id: aws-auth
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Build Docker image
+        run: |
+          docker buildx build --platform linux/amd64 -t ${{ secrets.DOCKER_IMAGE_TAG }}  -f ./node-app/Dockerfile ./node-app
+
+      - name: Tag Docker image
+        run: |
+          docker tag ${{ secrets.DOCKER_IMAGE_TAG }} ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ secrets.DOCKER_IMAGE_TAG }}
+
+      - name: Push Docker image to Amazon ECR
+        run: |
+          docker push ${{ steps.ecr-login.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ secrets.DOCKER_IMAGE_TAG }}
