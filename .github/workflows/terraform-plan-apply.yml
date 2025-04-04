@@ -37,6 +37,6 @@
   
 
           - name: Terraform Apply
-            run: terraform  -chdir=terraform plan -auto-approve
+            run: terraform  -chdir=terraform apply -auto-approve
             env:
               TF_VAR_region: ${{ secrets.AWS_REGION }}
