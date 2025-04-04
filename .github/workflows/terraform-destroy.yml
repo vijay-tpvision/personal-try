@@ -3,7 +3,6 @@
     
     on:
       workflow_dispatch:
-      
     
     jobs:
       build-and-push:
@@ -31,14 +30,8 @@
 
           - name: Terraform Init
             run: terraform init
-            
-          - name: Terraform Destroy
-            run: terraform plan
-            env:
-              TF_VAR_region: ${{ secrets.AWS_REGION }}
 
           - name: Terraform Destroy
             run: terraform destroy -auto-approve
             env:
               TF_VAR_region: ${{ secrets.AWS_REGION }}
-              
