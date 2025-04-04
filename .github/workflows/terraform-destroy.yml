@@ -22,7 +22,10 @@
             with:
               role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
               aws-region: ${{ secrets.AWS_REGION }}
-              
+        
+          - name: who_am_i
+            run: aws sts get-caller-identity   
+        
           - name: Setup Terraform
             uses: hashicorp/setup-terraform@v2
             with:
