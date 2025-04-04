@@ -6,7 +6,7 @@
       
     
     jobs:
-      build-and-push:
+      terraform-apply:
         runs-on: ubuntu-latest
     
         permissions:
