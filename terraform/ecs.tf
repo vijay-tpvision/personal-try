@@ -18,19 +18,19 @@ resource "aws_ecs_cluster" "main" {
 resource "aws_ecs_cluster_capacity_providers" "main" {
   cluster_name = aws_ecs_cluster.main.name
 
-  capacity_providers = ["FARGATE", "FARGATE_SPOT"]
+  capacity_providers = ["FARGATE", "FARGATE_SPOT", aws_ecs_capacity_provider.ec2.name]
 
   default_capacity_provider_strategy {
     base              = 1
     weight            = 100
-    capacity_provider = "FARGATE"
+    capacity_provider = aws_ecs_capacity_provider.ec2.name
   }
 }
 
 # Launch Template for ECS EC2 instances
 resource "aws_launch_template" "ecs" {
   name_prefix   = "denzopa-ecs-lt-"
-  image_id      = "ami-0e35ddab05955cf57"
+  image_id      = "ami-0298e0c0441cb5c66"
   instance_type = "t3.medium"
 
   user_data = base64encode(<<-EOF
@@ -124,7 +124,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
 resource "aws_ecs_task_definition" "app" {
   family                   = "denzopa-app"
   network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2", "FARGATE"]
+  requires_compatibilities = ["EC2"]
   cpu                      = 256
   memory                   = 512
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
@@ -275,4 +275,18 @@ resource "aws_iam_role_policy_attachment" "ecs" {
 resource "aws_iam_instance_profile" "ecs" {
   name = "denzopa-ecs-instance-profile"
   role = aws_iam_role.ecs.name
+}
+
+resource "aws_ecs_capacity_provider" "ec2" {
+  name = "denzopa-ec2-capacity-provider"
+
+  auto_scaling_group_provider {
+    auto_scaling_group_arn = aws_autoscaling_group.ecs.arn
+    managed_scaling {
+      maximum_scaling_step_size = 1000
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity          = 100
+    }
+  }
 } 
