@@ -3,7 +3,7 @@ resource "aws_cloudfront_distribution" "app" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "CloudFront distribution for denzopa application"
-  default_root_object = "index.html"
+  default_root_object = "/"
   price_class         = "PriceClass_All"
 
   aliases = ["beta.get-done.in"]
@@ -24,7 +24,8 @@ resource "aws_cloudfront_distribution" "app" {
     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "ALB"
-
+    viewer_protocol_policy = "redirect-to-https"
+    path_pattern           = "*"
     forwarded_values {
       query_string = true
       headers      = ["Host"]
