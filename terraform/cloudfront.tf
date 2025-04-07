@@ -25,7 +25,6 @@ resource "aws_cloudfront_distribution" "app" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "ALB"
     viewer_protocol_policy = "redirect-to-https"
-    path_pattern           = "*"
     forwarded_values {
       query_string = true
       headers      = ["Host"]
