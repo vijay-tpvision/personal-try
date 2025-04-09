@@ -34,8 +34,8 @@ jobs:
       - name: docker Build and push
         uses: docker/build-push-action@v4
         with:
-          context: ./node-app
+          context: ./nuxt-app
           push:  ${{ github.event_name == 'workflow_dispatch' }}
           platforms: linux/amd64
-          file: ./node-app/Dockerfile
+          file: ./nuxt-app/Dockerfile
           tags: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.ap-south-1.amazonaws.com/${{ secrets.ECR_REPOSITORY }}
