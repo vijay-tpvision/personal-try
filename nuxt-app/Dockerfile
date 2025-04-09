@@ -1,24 +1,28 @@
 # Build stage
-FROM node:18-alpine as build-stage
+FROM node:18-alpine AS build-stage
 
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN npm install
+RUN yarn install
 
 # Copy project files
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN yarn build
 
 # Production stage
-FROM node:18-alpine as production-stage
+FROM node:18-alpine AS production-stage
 
 WORKDIR /app
+
+# Copy package files and install production dependencies
+COPY package.json yarn.lock ./
+RUN yarn install --production
 
 # Copy built assets from build stage
 COPY --from=build-stage /app/.output /app/.output
@@ -27,4 +31,4 @@ COPY --from=build-stage /app/.output /app/.output
 EXPOSE 3000
 
 # Start the application
-CMD ["node", ".output/server/index.mjs"] 
+CMD ["yarn", "dev"] 
