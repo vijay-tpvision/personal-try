@@ -1,34 +1,37 @@
-# Build stage
-FROM node:18-alpine AS build-stage
+# Use Node.js LTS version as base image
+FROM node:20-alpine AS builder
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package.json and yarn.lock
 COPY package.json yarn.lock ./
 
 # Install dependencies
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
-# Copy project files
+# Copy the rest of the application
 COPY . .
 
 # Build the application
 RUN yarn build
 
 # Production stage
-FROM node:18-alpine AS production-stage
+FROM node:20-alpine AS production
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files and install production dependencies
-COPY package.json yarn.lock ./
-RUN yarn install --production
+# Copy necessary files from builder
+COPY --from=builder /app/.output /app/.output
+COPY --from=builder /app/package.json /app/package.json
+COPY --from=builder /app/yarn.lock /app/yarn.lock
 
-# Copy built assets from build stage
-COPY --from=build-stage /app/.output /app/.output
+# Install production dependencies only
+RUN yarn install --production --frozen-lockfile
 
 # Expose the port the app runs on
 EXPOSE 3000
 
 # Start the application
-CMD ["yarn", "dev"] 
+CMD ["node", ".output/server/index.mjs"]
