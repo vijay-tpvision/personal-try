@@ -2,6 +2,7 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxtjs/tailwindcss'],
+
   app: {
     head: {
       title: 'Interactive Nuxt App',
@@ -10,5 +11,7 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' }
       ]
     }
-  }
-}) 
+  },
+
+  compatibilityDate: '2025-04-10'
+})
