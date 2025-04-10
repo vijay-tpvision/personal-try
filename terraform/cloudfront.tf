@@ -3,7 +3,7 @@ resource "aws_cloudfront_distribution" "app" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "CloudFront distribution for denzopa application"
-  default_root_object = "/"
+  default_root_object = "/index.html"
   price_class         = "PriceClass_All"
 
   aliases = ["beta.get-done.in"]
