@@ -1,3 +1,4 @@
+
 # VPC
 resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/22"
@@ -20,6 +21,31 @@ resource "aws_internet_gateway" "main" {
     project     = "denzopa"
     environment = "denzopa-dev"
   }
+}
+
+# Elastic IP for NAT Gateway
+resource "aws_eip" "nat" {
+  domain = "vpc"
+
+  tags = {
+    Name        = "denzopa-nat-eip"
+    project     = "denzopa"
+    environment = "denzopa-dev"
+  }
+}
+
+# NAT Gateway
+resource "aws_nat_gateway" "main" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public_1.id
+
+  tags = {
+    Name        = "denzopa-nat"
+    project     = "denzopa"
+    environment = "denzopa-dev"
+  }
+
+  depends_on = [aws_internet_gateway.main]
 }
 
 # Public Subnets
@@ -118,6 +144,11 @@ resource "aws_route_table" "public" {
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main.id
+  }
+
   tags = {
     Name        = "denzopa-private-rt"
     project     = "denzopa"
@@ -154,4 +185,67 @@ resource "aws_route_table_association" "private_2" {
 resource "aws_route_table_association" "private_3" {
   subnet_id      = aws_subnet.private_3.id
   route_table_id = aws_route_table.private.id
+}
+
+# VPC Flow Logs
+resource "aws_flow_log" "vpc" {
+  iam_role_arn    = aws_iam_role.vpc_flow_logs.arn
+  log_destination = aws_cloudwatch_log_group.vpc_flow_logs.arn
+  traffic_type    = "ALL"
+  vpc_id          = aws_vpc.main.id
+}
+
+resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
+  name              = "/aws/vpc-flow-logs/denzopa"
+  retention_in_days = 30
+
+  tags = {
+    Name        = "denzopa-vpc-flow-logs"
+    project     = "denzopa"
+    environment = "denzopa-dev"
+  }
+}
+
+resource "aws_iam_role" "vpc_flow_logs" {
+  name = "denzopa-vpc-flow-logs-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "vpc-flow-logs.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = {
+    project     = "denzopa"
+    environment = "denzopa-dev"
+  }
+}
+
+resource "aws_iam_role_policy" "vpc_flow_logs" {
+  name = "denzopa-vpc-flow-logs-policy"
+  role = aws_iam_role.vpc_flow_logs.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:DescribeLogGroups",
+          "logs:DescribeLogStreams"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      }
+    ]
+  })
 } 
