@@ -21,9 +21,9 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   default_cache_behavior {
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "ALB"
+    allowed_methods        = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "ALB"
     viewer_protocol_policy = "redirect-to-https"
     forwarded_values {
       query_string = true
@@ -34,9 +34,9 @@ resource "aws_cloudfront_distribution" "app" {
       }
     }
 
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
+    min_ttl     = 0
+    default_ttl = 3600
+    max_ttl     = 86400
   }
 
   restrictions {
@@ -69,4 +69,4 @@ resource "aws_route53_record" "app" {
     zone_id                = aws_cloudfront_distribution.app.hosted_zone_id
     evaluate_target_health = false
   }
-} 
+}
