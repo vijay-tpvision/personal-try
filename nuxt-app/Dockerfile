@@ -10,6 +10,8 @@ COPY package.json yarn.lock ./
 # Install dependencies
 RUN yarn install --frozen-lockfile
 
+
+
 # Copy the rest of the application
 COPY . .
 
@@ -21,8 +23,8 @@ FROM node:20-alpine AS production
 
 # Set working directory
 WORKDIR /app
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
+RUN apk add curl
 
 # Copy necessary files from builder
 COPY --from=builder /app/.output /app/.output
