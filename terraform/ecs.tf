@@ -152,6 +152,13 @@ resource "aws_ecs_task_definition" "app" {
           awslogs-stream-prefix = "ecs"
         }
       }
+    },
+    {
+      name      = "healthcheck"
+      image     = "curlimages/curl:latest"
+      essential = false
+      cpu       = 64
+      memory    = 128
 
       healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
@@ -159,6 +166,15 @@ resource "aws_ecs_task_definition" "app" {
         timeout     = 5
         retries     = 3
         startPeriod = 60
+      }
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs.name
+          awslogs-region        = "ap-south-1"
+          awslogs-stream-prefix = "ecs-healthcheck"
+        }
       }
     }
   ])
