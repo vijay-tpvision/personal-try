@@ -259,6 +259,10 @@ resource "aws_cloudwatch_log_group" "ecs" {
     project     = "denzopa"
     environment = "denzopa-dev"
   }
+  provisioner "local-exec" {
+    when    = destroy
+    command = "aws logs delete-log-group --log-group-name /ecs/denzopa"
+  }
 }
 
 # ECS Security Group

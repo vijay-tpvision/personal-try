@@ -204,6 +204,11 @@ resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
     project     = "denzopa"
     environment = "denzopa-dev"
   }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "aws logs delete-log-group --log-group-name /aws/vpc-flow-logs/denzopa"
+  }
 }
 
 resource "aws_iam_role" "vpc_flow_logs" {
