@@ -253,11 +253,33 @@ resource "aws_appautoscaling_policy" "ecs_policy" {
 resource "aws_cloudwatch_log_group" "ecs" {
   name              = "/ecs/denzopa"
   retention_in_days = 30
+  force_destroy     = true
 
   tags = {
     Name        = "denzopa-ecs-logs"
     project     = "denzopa"
     environment = "denzopa-dev"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# CloudWatch Log Group for ECS Tasks
+resource "aws_cloudwatch_log_group" "ecs_tasks" {
+  name              = "/ecs/denzopa-tasks"
+  retention_in_days = 30
+  force_destroy     = true
+
+  tags = {
+    Name        = "denzopa-ecs-task-logs"
+    project     = "denzopa"
+    environment = "denzopa-dev"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -333,4 +355,35 @@ resource "aws_ecs_capacity_provider" "ec2" {
       target_capacity           = 100
     }
   }
+}
+
+# Cleanup resources during destroy
+resource "null_resource" "cleanup" {
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = <<EOT
+      # Stop all running tasks
+      aws ecs list-tasks --cluster ${aws_ecs_cluster.main.name} --query 'taskArns[]' --output text | while read task; do
+        aws ecs stop-task --cluster ${aws_ecs_cluster.main.name} --task $task
+      done
+      
+      # Delete log groups
+      aws logs delete-log-group --log-group-name /ecs/denzopa || true
+      aws logs delete-log-group --log-group-name /ecs/denzopa-tasks || true
+      
+      # Delete VPC flow logs log group
+      aws logs delete-log-group --log-group-name /aws/vpc-flow-logs/denzopa || true
+    EOT
+  }
+
+  depends_on = [
+    aws_ecs_service.app,
+    aws_cloudwatch_log_group.ecs,
+    aws_cloudwatch_log_group.ecs_tasks,
+    aws_flow_log.vpc
+  ]
 } 
