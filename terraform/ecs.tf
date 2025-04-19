@@ -125,8 +125,8 @@ resource "aws_ecs_task_definition" "app" {
   family                   = "denzopa-app"
   network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
-  cpu                      = 256
-  memory                   = 512
+  cpu                      = 320
+  memory                   = 640
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   container_definitions = jsonencode([
     {
@@ -191,7 +191,7 @@ resource "aws_ecs_service" "app" {
   name            = "denzopa-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.app.arn
-  desired_count   = 2
+  desired_count   = 3
 
   network_configuration {
     subnets          = [aws_subnet.private_1.id, aws_subnet.private_2.id, aws_subnet.private_3.id]
@@ -218,6 +218,34 @@ resource "aws_ecs_service" "app" {
     Name        = "denzopa-service"
     project     = "denzopa"
     environment = "denzopa-dev"
+  }
+}
+
+# ECS Service Autoscaling
+resource "aws_appautoscaling_target" "ecs_target" {
+  max_capacity       = 12
+  min_capacity       = 0
+  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.app.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy" {
+  name               = "denzopa-ecs-scaling-policy"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value = 70.0
+
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 300
   }
 }
 
