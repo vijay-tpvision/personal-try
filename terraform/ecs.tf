@@ -164,17 +164,22 @@ resource "aws_ecs_task_definition" "app" {
     {
       name      = "healthcheck"
       image     = "curlimages/curl:latest"
-      essential = false
+      essential = true
       cpu       = 64
       memory    = 128
 
-      healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://nuxt-app-container:3000 || exit 1"]
-        interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 60
-      }
+      "command" : [
+        "/bin/sh",
+        "-c",
+        "while true; do curl -s -f http://nuxt-app-container:3000; if [ $? -eq 0 ]; then sleep 5; else exit 1; fi; done"
+      ],
+      "dependsOn" : [
+        {
+          "containerName" : "nuxt-app-container",
+          "condition" : "START"
+        }
+      ]
+
 
       logConfiguration = {
         logDriver = "awslogs"
