@@ -123,14 +123,14 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
 # ECS Task Definition
 resource "aws_ecs_task_definition" "app" {
   family                   = "denzopa-app"
-  network_mode             = "awsvpc"
+  network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
   cpu                      = 320
   memory                   = 640
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   container_definitions = jsonencode([
     {
-      name      = "app"
+      name      = "nuxt-app-container"
       image     = var.container_image
       cpu       = 256
       memory    = 512
@@ -161,7 +161,7 @@ resource "aws_ecs_task_definition" "app" {
       memory    = 128
 
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+        command     = ["CMD-SHELL", "curl -f http://nuxt-app-container:3000 || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3
