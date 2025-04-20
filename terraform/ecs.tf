@@ -152,7 +152,7 @@ resource "aws_ecs_task_definition" "app" {
           awslogs-stream-prefix = "ecs"
         }
       }
-      healthCheck {
+      healthCheck = {
         command     = ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
         interval    = 60
         retries     = 3
