@@ -152,36 +152,15 @@ resource "aws_ecs_task_definition" "app" {
           awslogs-stream-prefix = "ecs"
         }
       }
-    },
-    {
-      name      = "healthcheck"
-      image     = "curlimages/curl:latest"
-      essential = true
-      cpu       = 64
-      memory    = 128
-
-      "command" : [
-        "/bin/sh",
-        "-c",
-        "while true; do curl -s -f http://nuxt-app-container:3000; if [ $? -eq 0 ]; then sleep 5; else exit 1; fi; done"
-      ],
-      "dependsOn" : [
-        {
-          "containerName" : "nuxt-app-container",
-          "condition" : "START"
-        }
-      ]
-
-
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.ecs.name
-          awslogs-region        = "ap-south-1"
-          awslogs-stream-prefix = "ecs-healthcheck"
-        }
+      healthCheck {
+        command     = ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
+        interval    = 60
+        retries     = 3
+        startPeriod = 60
+        timeout     = 5
       }
-    }
+    },
+
   ])
 
   tags = {
