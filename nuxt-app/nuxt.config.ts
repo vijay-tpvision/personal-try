@@ -13,5 +13,9 @@ export default defineNuxtConfig({
     }
   },
 
+  serverMiddleware: [
+    { path: '/', handler: '~/server/middleware/healthcheck.js' }
+  ],
+
   compatibilityDate: '2025-04-10'
-})
+});
