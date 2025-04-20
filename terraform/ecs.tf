@@ -123,7 +123,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
 # ECS Task Definition
 resource "aws_ecs_task_definition" "app" {
   family                   = "denzopa-app"
-  network_mode             = "bridge"
+  network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
   cpu                      = 320
   memory                   = 640
