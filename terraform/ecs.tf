@@ -160,7 +160,26 @@ resource "aws_ecs_task_definition" "app" {
         timeout     = 5
       }
     },
+    {
+      name      = "wakeup"
+      image     = "curlimages/curl:latest"
+      cpu       = 128
+      memory    = 128
+      essential = false
 
+      command = [
+        "sh", "-c", "while true; do curl -s nuxt-app-container:3000 | tee /dev/stderr > /dev/null; sleep 300; done"
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs.name
+          awslogs-region        = "ap-south-1"
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+    }
   ])
 
   tags = {
@@ -321,4 +340,4 @@ resource "aws_ecs_capacity_provider" "ec2" {
       target_capacity           = 100
     }
   }
-} 
+}
